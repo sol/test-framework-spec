@@ -1,15 +1,14 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, TypeSynonymInstances, FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies #-}
 module Test.Spec (
 -- * Building specifications
 -- |
--- The intended behavior of some function is described with `describe`, `it`
--- and `prop`.  The resulting test suite can be executed with `run`.
+-- The intended behavior of some function is described with `describe` and
+-- `it`.  The resulting test suite can be executed with `run`.
 
 -- $example
   run
 , describe
 , it
-, prop
 
 -- * Syntactic sugar for HUnit
 , shouldBe
@@ -27,9 +26,7 @@ import           Control.Monad.Trans.Writer   (Writer, runWriter)
 import qualified Control.Monad.Trans.Writer as Writer
 import           Test.Framework (Test, testGroup, defaultMain)
 import           Test.Framework.Providers.HUnit (testCase)
-import           Test.Framework.Providers.QuickCheck2 (testProperty)
 import           Test.HUnit ((@?=), Assertion)
-import           Test.QuickCheck(Testable)
 
 -- $example
 --
@@ -38,6 +35,7 @@ import           Test.QuickCheck(Testable)
 -- > module Spec where
 -- >
 -- > import Test.Spec
+-- > import Test.Framework.Providers.QuickCheck2
 -- >
 -- > main :: IO ()
 -- > main = run $ do
@@ -46,7 +44,7 @@ import           Test.QuickCheck(Testable)
 -- >     it "reverses a list" $ do
 -- >       reverse ([1, 2, 3] :: [Int]) `shouldBe` [3, 2, 1]
 -- >
--- >     prop "gives the original list, if applied twice" $
+-- >     it "gives the original list, if applied twice" testProperty $
 -- >       \xs -> (reverse . reverse) (xs :: [Int]) == xs
 
 newtype SpecM a = SpecM { runSpecM :: Writer [Test] a }
@@ -68,11 +66,14 @@ run = defaultMain . runSpec
 describe :: String -> Spec -> Spec
 describe label = add . testGroup label . runSpec
 
-it :: String -> Assertion -> Spec
-it label = add . testCase label
+class IsTest a b | a -> b where
+  it :: String -> a -> b
 
-prop :: Testable a => String -> a -> Spec
-prop label = add . testProperty label
+instance IsTest Assertion Spec where
+  it label = add . testCase label
+
+instance IsTest (String -> a -> Test) (a -> Spec) where
+  it label f = add . f label
 
 -- |
 -- @actual \`shouldBe\` expected@ asserts that @actual@ is equal to @expected@

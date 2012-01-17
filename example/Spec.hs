@@ -1,6 +1,7 @@
 module Spec where
 
 import Test.Spec
+import Test.Framework.Providers.QuickCheck2
 
 main :: IO ()
 main = run $ do
@@ -9,5 +10,5 @@ main = run $ do
     it "reverses a list" $ do
       reverse ([1, 2, 3] :: [Int]) `shouldBe` [3, 2, 1]
 
-    prop "gives the original list, if applied twice" $
+    it "gives the original list, if applied twice" testProperty $
       \xs -> (reverse . reverse) (xs :: [Int]) == xs

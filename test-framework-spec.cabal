@@ -16,9 +16,7 @@ library
     , transformers
     , test-framework
     , test-framework-hunit
-    , test-framework-quickcheck2
     , HUnit
-    , QuickCheck
   exposed-modules:
       Test.Spec
       Test.Spec.HspecCompat
