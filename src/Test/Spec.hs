@@ -20,6 +20,7 @@ module Test.Spec (
 , SpecM
 , Spec
 , runSpec
+, add
 ) where
 
 import           Control.Monad.Trans.Writer   (Writer, runWriter)
@@ -52,6 +53,7 @@ newtype SpecM a = SpecM { runSpecM :: Writer [Test] a }
 
 type Spec = SpecM ()
 
+-- | Add a test to a specification
 add :: Test -> Spec
 add = SpecM . Writer.tell . return
 
