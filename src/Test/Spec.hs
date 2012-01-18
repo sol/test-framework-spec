@@ -20,11 +20,12 @@ module Test.Spec (
 , SpecM
 , Spec
 , runSpec
+, ignore
 ) where
 
 import           Control.Monad.Trans.Writer   (Writer, runWriter)
 import qualified Control.Monad.Trans.Writer as Writer
-import           Test.Framework (Test, testGroup, defaultMain)
+import           Test.Framework (Test, testGroup, ignoreTest, defaultMain)
 import           Test.Framework.Providers.HUnit (testCase)
 import           Test.HUnit ((@?=), Assertion)
 
@@ -80,3 +81,6 @@ instance IsTest (String -> a -> Test) (a -> Spec) where
 -- (this is just an alias for `@?=`).
 shouldBe :: (Show a, Eq a) => a -> a -> Assertion
 actual `shouldBe` expected = actual @?= expected
+
+ignore :: Spec -> Spec
+ignore = SpecM . Writer.tell . map (ignoreTest Nothing) . runSpec
