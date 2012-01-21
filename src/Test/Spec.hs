@@ -11,7 +11,7 @@ module Test.Spec (
 , it
 
 -- * Syntactic sugar for HUnit
-, shouldBe
+, module Test.HUnit.ShouldBe
 
 -- * Interoperability with test-framework
 -- |
@@ -29,7 +29,8 @@ import           Control.Monad.Trans.Writer   (Writer, runWriter)
 import qualified Control.Monad.Trans.Writer as Writer
 import           Test.Framework (Test, testGroup, defaultMain)
 import           Test.Framework.Providers.HUnit (testCase)
-import           Test.HUnit ((@?=), Assertion, assertFailure)
+import           Test.HUnit (Assertion, assertFailure)
+import           Test.HUnit.ShouldBe
 
 -- $example
 --
@@ -78,13 +79,6 @@ instance IsTest Assertion Spec where
 
 instance IsTest (String -> a -> Test) (a -> Spec) where
   it label f = add . f label
-
--- |
--- @actual \`shouldBe\` expected@ asserts that @actual@ is equal to @expected@
--- (this is just an alias for `@?=`).
-shouldBe :: (Show a, Eq a) => a -> a -> Assertion
-actual `shouldBe` expected = actual @?= expected
-
 
 instance IsTest Pending Spec where
   it label (Pending reason) = add $ testCase label $ assertFailure ("pending: " ++ reason)
