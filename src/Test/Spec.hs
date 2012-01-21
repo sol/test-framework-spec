@@ -21,13 +21,15 @@ module Test.Spec (
 , Spec
 , runSpec
 , add
+, pending
+, todo
 ) where
 
 import           Control.Monad.Trans.Writer   (Writer, runWriter)
 import qualified Control.Monad.Trans.Writer as Writer
 import           Test.Framework (Test, testGroup, defaultMain)
 import           Test.Framework.Providers.HUnit (testCase)
-import           Test.HUnit ((@?=), Assertion)
+import           Test.HUnit ((@?=), Assertion, assertFailure)
 
 -- $example
 --
@@ -82,3 +84,15 @@ instance IsTest (String -> a -> Test) (a -> Spec) where
 -- (this is just an alias for `@?=`).
 shouldBe :: (Show a, Eq a) => a -> a -> Assertion
 actual `shouldBe` expected = actual @?= expected
+
+
+instance IsTest Pending Spec where
+  it label (Pending reason) = add $ testCase label $ assertFailure ("pending: " ++ reason)
+
+newtype Pending = Pending String
+
+pending :: String -> Pending
+pending = Pending
+
+todo :: Pending
+todo = pending "TODO"
