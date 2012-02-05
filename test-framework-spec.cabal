@@ -17,7 +17,7 @@ library
     , test-framework
     , test-framework-hunit
     , HUnit
-    , test-util
+    , test-shouldbe
   exposed-modules:
       Test.Spec
       Test.Spec.HspecCompat
